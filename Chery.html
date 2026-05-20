@@ -258,7 +258,7 @@
               pageLength: 20,
               paging: true,
               searching: true,
-              ordering: false,
+              ordering: true,
               fixedHeader: true,
               language: {
                 search: "Buscar semana:",
@@ -274,16 +274,6 @@
               },
               createdRow: function(row, rowData) {
                 const textoFila = rowData.join(" ").toLowerCase();
-
-                if (textoFila.includes("financiamiento opcional")) {
-                $(row).addClass("fila-separadora");
-                const cells = $('td', row);
-                cells.eq(0)
-                  .attr('colspan', headers.length)
-                  .text("Financiamiento opcional");
-                cells.slice(1).remove();
-                return;
-                }
 
                 const estadoIndex = headers.findIndex(h => h.toLowerCase() === "estado");
                 if (estadoIndex !== -1) {
