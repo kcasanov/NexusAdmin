@@ -20,8 +20,7 @@ table.dataTable{width:100%!important;background:var(--panel2);color:var(--text);
 table.dataTable th,table.dataTable td{white-space:nowrap;padding:10px 12px;border-bottom:1px solid #2a2a2a}
 table.dataTable thead th{background:var(--header);color:#fff;text-align:center!important;font-weight:700;vertical-align:middle}
 table.dataTable tbody td{background:var(--panel2)}
-table.dataTable tbody td:first-child{text-align:center!important;font-weight:700}
-table.dataTable td.columna-estado,table.dataTable th.columna-estado{text-align:center!important}
+table.dataTable thead th,table.dataTable tbody td{text-align:center!important;vertical-align:middle!important}
 tr.fila-separadora td{background:#101010!important;color:var(--green)!important;text-align:center!important;font-weight:800!important;font-size:15px!important;border-top:2px solid var(--green)!important;border-bottom:2px solid var(--green)!important;padding:14px 12px!important}
 td.estado-pagado{background:var(--green2)!important;color:#fff!important;text-align:center!important;font-weight:700}
 .dataTables_wrapper,.dataTables_wrapper .dataTables_length,.dataTables_wrapper .dataTables_filter,.dataTables_wrapper .dataTables_info,.dataTables_wrapper .dataTables_paginate{color:#fff!important}
@@ -90,8 +89,7 @@ async function cargar(){
      const rows=data.slice(hi+1).filter(row=>row.some(c=>String(c||"").trim()!=="")).map(row=>{let f=[...row];while(f.length<headers.length)f.push("");return f.slice(0,headers.length)});
 
      const estadoIndex=headers.findIndex(h=>h.toLowerCase()==="estado");
-     const defs=[{targets:0,className:"dt-center"}];
-     if(estadoIndex!==-1)defs.push({targets:estadoIndex,className:"dt-center columna-estado"});
+     const defs=[{targets:"_all",className:"dt-center"}];
 
      const tabla=$("#tablaPagos").DataTable({
       data:rows,
@@ -114,13 +112,14 @@ async function cargar(){
        }
        if(estadoIndex!==-1){
         const estado=String(rowData[estadoIndex]||"").trim().toLowerCase();
-        $("td",row).eq(estadoIndex).addClass("columna-estado");
         if(estado==="pagado")$("td",row).eq(estadoIndex).addClass("estado-pagado");
        }
       },
       initComplete:function(){
-       $("#tablaPagos thead th").css("text-align","center");
-       if(estadoIndex!==-1)$("#tablaPagos thead th").eq(estadoIndex).addClass("columna-estado");
+       $("#tablaPagos thead th").css({
+         "text-align":"center",
+         "vertical-align":"middle"
+       });
       }
      });
 
