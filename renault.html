@@ -416,17 +416,20 @@
                     header => header.toLowerCase() === "estado"
                   );
 
-                  if (estadoIndex !== -1) {
-                    const estado = String(
-                      rowData[estadoIndex] || ""
-                    ).trim().toLowerCase();
+if (estadoIndex !== -1) {
+  $('td', row).eq(estadoIndex).css({
+    "text-align": "center",
+    "font-weight": "700"
+  });
 
-                    if (estado === "pagado") {
-                      $("td", row)
-                        .eq(estadoIndex)
-                        .addClass("estado-pagado");
-                    }
-                  }
+  const estado = String(rowData[estadoIndex] || "")
+    .trim()
+    .toLowerCase();
+
+  if (estado === "pagado") {
+    $('td', row).eq(estadoIndex).addClass("estado-pagado");
+  }
+}
                 }
               });
 
