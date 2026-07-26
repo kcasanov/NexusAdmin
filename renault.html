@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resumen de Semana - RENAULT</title>
+
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+
+  <style>
+    :root {
+      --bg: #121212;
+      --panel: #1f1f1f;
+      --panel-2: #1e1e1e;
+      --border: #3a3a3a;
+      --header: #333333;
+      --text: #f0f0f0;
+      --muted: #aaaaaa;
+      --green: #58c45f;
+      --green-dark: #3b6f35;
+      --red: #ff5252;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
+    }
+
+    .container {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 24px 28px;
+    }
+
+    h1 {
+      margin: 14px 0 26px;
+      color: var(--green);
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    #resumen {
+      min-height: 170px;
+      margin-bottom: 24px;
+      padding: 24px 18px;
+      background-color: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    #resumen p {
+      margin: 0 0 12px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .positivo {
+      color: #00e676;
+      font-weight: 800;
+    }
+
+    .negativo {
+      color: var(--red);
+      font-weight: 800;
+    }
+
+    #loading,
+    #error {
+      margin: 20px 0;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    #loading {
+      color: var(--muted);
+    }
+
+    #error {
+      display: none;
+      color: var(--red);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table.dataTable {
+      width: 100% !important;
+      color: var(--text);
+      background-color: var(--panel-2);
+      border: 1px solid #444444;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    table.dataTable th,
+    table.dataTable td {
+      padding: 10px 12px;
+      white-space: nowrap;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    table.dataTable th {
+      color: #ffffff;
+      background-color: var(--header);
+      font-weight: 700;
+    }
+
+    table.dataTable td {
+      background-color: var(--panel-2);
+    }
+
+    tr.fila-separadora td {
+      padding: 14px 12px !important;
+      color: var(--green) !important;
+      background-color: #101010 !important;
+      border-top: 2px solid var(--green) !important;
+      border-bottom: 2px solid var(--green) !important;
+      text-align: center !important;
+      font-size: 15px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.3px;
+    }
+
+    td.estado-pagado {
+      color: #ffffff !important;
+      background-color: var(--green-dark) !important;
+      font-weight: 700;
+    }
+
+    .dataTables_wrapper,
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+      color: #ffffff !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length select {
+      padding: 6px;
+      color: #ffffff;
+      background-color: #333333;
+      border: 1px solid #555555;
+      border-radius: 4px;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+      margin: 2px;
+      color: #ffffff !important;
+      background: #1f1f1f !important;
+      border: 1px solid #444444 !important;
+      border-radius: 4px;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+      color: #ffffff !important;
+      background: #3c7d40 !important;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px 10px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      table.dataTable {
+        font-size: 12px;
+      }
+
+      table.dataTable th,
+      table.dataTable td {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Resumen de Semana - RENAULT</h1>
+
+    <div id="resumen">
+      <p><strong id="semana_linea"></strong></p>
+      <p><strong>Ganancias Totales:</strong> <span id="ganancia"></span></p>
+      <p><strong>Reembolsos:</strong> <span id="reembolso"></span></p>
+      <p><strong>Efectivo:</strong> <span id="efectivo"></span></p>
+      <p><strong>Cuota:</strong> <span id="cuota"></span></p>
+      <p><strong>Saldo Semana:</strong> <span id="saldo"></span></p>
+    </div>
+
+    <div id="loading">Cargando datos desde Google Sheets...</div>
+    <div id="error"></div>
+
+    <div class="table-wrap">
+      <table id="tablaPagos" class="display" style="display: none;"></table>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <script>
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSyi-eVQI41Qf2eqrW_gAY-l_uU7hgZbmR_IkGY_kvkWFh7gdmNx8V_7vTVTiW-5x2xyCM6xTSDOr4R/pub?gid=240735274&single=true&output=tsv";
+
+    function urlSinCache(url) {
+      const separador = url.includes("?") ? "&" : "?";
+      return url + separador + "cacheBust=" + Date.now();
+    }
+
+    function limpiarNumero(valor) {
+      if (!valor) {
+        return 0;
+      }
+
+      let texto = String(valor)
+        .replace("₡", "")
+        .replace(/\s/g, "")
+        .replace("−", "-");
+
+      if (texto.includes(",") && texto.includes(".")) {
+        texto = texto.replace(/\./g, "").replace(",", ".");
+      } else {
+        texto = texto.replace(",", ".");
+      }
+
+      return parseFloat(texto.replace(/[^0-9.\-]/g, "")) || 0;
+    }
+
+    function textoCompletoFila(row) {
+      return row
+        .map(cell => String(cell || "").trim())
+        .join(" ")
+        .toLowerCase();
+    }
+
+    function textoSeparador(row) {
+      const texto = textoCompletoFila(row);
+
+      if (texto.includes("financiamiento opcional")) {
+        return "Financiamiento opcional";
+      }
+
+      if (texto.includes("semanas atrasadas")) {
+        return "Semanas atrasadas";
+      }
+
+      return "";
+    }
+
+    function mostrarError(mensaje) {
+      document.getElementById("loading").style.display = "none";
+
+      const error = document.getElementById("error");
+      error.textContent = mensaje;
+      error.style.display = "block";
+    }
+
+    async function cargarDatos() {
+      try {
+        const response = await fetch(urlSinCache(SHEET_URL), {
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            "Google Sheets respondió con estado " + response.status
+          );
+        }
+
+        const tsv = await response.text();
+
+        Papa.parse(tsv, {
+          delimiter: "\t",
+          header: false,
+          skipEmptyLines: true,
+
+          complete: function(results) {
+            try {
+              const data = results.data.filter(row =>
+                row.some(cell => String(cell || "").trim() !== "")
+              );
+
+              const labels = data.map(row =>
+                String(row[0] || "").trim()
+              );
+
+              const valores = data.map(row =>
+                String(row[1] || "").trim()
+              );
+
+              const semanaIndex = labels.findIndex(label => {
+                const texto = label.toLowerCase();
+                return texto === "semana" || texto === "semana #";
+              });
+
+              if (semanaIndex !== -1 && valores[semanaIndex]) {
+                document.getElementById("semana_linea").textContent =
+                  "Semana #" + valores[semanaIndex];
+              }
+
+              const gananciasIndex = labels.findIndex(
+                label => label.toLowerCase() === "ganancias totales"
+              );
+
+              if (gananciasIndex !== -1) {
+                document.getElementById("ganancia").textContent =
+                  valores[gananciasIndex] || "";
+
+                document.getElementById("reembolso").textContent =
+                  valores[gananciasIndex + 1] || "";
+
+                document.getElementById("efectivo").textContent =
+                  valores[gananciasIndex + 2] || "";
+
+                document.getElementById("cuota").textContent =
+                  valores[gananciasIndex + 3] || "";
+
+                const saldoTexto = valores[gananciasIndex + 4] || "";
+                const saldoNumero = limpiarNumero(saldoTexto);
+                const saldo = document.getElementById("saldo");
+
+                saldo.textContent = saldoTexto;
+                saldo.className =
+                  saldoNumero >= 0 ? "positivo" : "negativo";
+              }
+
+              const headerIndex = data.findIndex(row => {
+                const celdas = row.map(cell =>
+                  String(cell || "").trim().toLowerCase()
+                );
+
+                return celdas.includes("semana") &&
+                       celdas.includes("fecha");
+              });
+
+              if (headerIndex === -1) {
+                throw new Error(
+                  "No se encontró una fila de encabezados con Semana y Fecha."
+                );
+              }
+
+              const headers = data[headerIndex].map(header =>
+                String(header || "").trim()
+              );
+
+              const rows = data
+                .slice(headerIndex + 1)
+                .filter(row =>
+                  row.some(cell => String(cell || "").trim() !== "")
+                )
+                .map(row => {
+                  const fila = [...row];
+
+                  while (fila.length < headers.length) {
+                    fila.push("");
+                  }
+
+                  return fila.slice(0, headers.length);
+                });
+
+              const tabla = $("#tablaPagos").DataTable({
+                data: rows,
+                columns: headers.map(header => ({
+                  title: header
+                })),
+                pageLength: 20,
+                paging: true,
+                searching: true,
+                ordering: false,
+                fixedHeader: true,
+
+                language: {
+                  search: "Buscar semana:",
+                  lengthMenu: "Mostrar _MENU_ registros",
+                  zeroRecords: "No se encontró nada",
+                  info: "Mostrando _TOTAL_ registros",
+                  infoEmpty: "No hay registros",
+                  infoFiltered: "(filtrado de _MAX_ totales)",
+                  paginate: {
+                    previous: "Anterior",
+                    next: "Siguiente"
+                  }
+                },
+
+                createdRow: function(row, rowData) {
+                  const separador = textoSeparador(rowData);
+
+                  if (separador) {
+                    $(row).addClass("fila-separadora");
+
+                    const celdas = $("td", row);
+
+                    celdas
+                      .eq(0)
+                      .attr("colspan", headers.length)
+                      .text(separador);
+
+                    celdas.slice(1).remove();
+                    return;
+                  }
+
+                  const estadoIndex = headers.findIndex(
+                    header => header.toLowerCase() === "estado"
+                  );
+
+                  if (estadoIndex !== -1) {
+                    const estado = String(
+                      rowData[estadoIndex] || ""
+                    ).trim().toLowerCase();
+
+                    if (estado === "pagado") {
+                      $("td", row)
+                        .eq(estadoIndex)
+                        .addClass("estado-pagado");
+                    }
+                  }
+                }
+              });
+
+              $(".dataTables_filter input")
+                .off()
+                .on("keyup change", function() {
+                  tabla.column(0).search(this.value).draw();
+                });
+
+              document.getElementById("loading").style.display = "none";
+              document.getElementById("tablaPagos").style.display = "table";
+            } catch (error) {
+              console.error(error);
+              mostrarError(
+                "Error al interpretar la estructura de la hoja."
+              );
+            }
+          },
+
+          error: function(error) {
+            console.error(error);
+            mostrarError(
+              "No se pudo leer la información de Google Sheets."
+            );
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        mostrarError(
+          "Error al cargar los datos. Revisa que la hoja siga publicada."
+        );
+      }
+    }
+
+    cargarDatos();
+  </script>
+</body>
+</html>
